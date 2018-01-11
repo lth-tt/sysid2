@@ -29,6 +29,28 @@ def read_data(control_output,task_vel):
 
 
 
+#the function reads the step response data from the files and outputs a dataframe
+def batch_read_data(control_output,task_vel):
+    try:
+        df_soll     = pd.read_csv(control_output, header = 0)
+        df_soll.columns = df_soll.columns.str.strip() #removing whitespace from header name
+        df_soll.rename(columns={'values[0]': 'x_soll','time':'time_old','local_time':'time'}, inplace=True)
+        df_soll     = df_soll.set_index('time')
+        df_ist      = pd.read_csv(task_vel, header = 0)
+        df_ist.columns = df_ist.columns.str.strip()
+        df_ist.rename(columns={'values[2]': 'x_ist','time':'time_old','local_time':'time'}, inplace=True)
+        df_ist      = df_ist.set_index('time')
+        #df_ist      = df_ist[~df_ist.index.duplicated(keep = 'first')]
+        df_ist_soll = pd.concat([df_soll.x_soll, df_ist.x_ist], axis = 1).fillna(method = 'pad')
+        df_ist_soll = df_ist_soll.fillna(0)
+        return df_ist_soll
+    except:
+        pass
+
+
+
+
+    
 #function that strips zeros and multiplies the dataframe to 1
 def strip_multiply(dataframe):
     
