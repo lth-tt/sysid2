@@ -8,7 +8,7 @@ The total number of positions and total number of observations in each positions
 
 ![equation](http://latex.codecogs.com/gif.latex?Positions%20%3D%20%5Csum%20%7B%27.log%27%7D) 
 
-![equation](http://latex.codecogs.com/gif.latex?Observations%20%3D%20%5Cfrac%7B%5Csum%7B%27.log.%3Cn%3E%27%7D%7D%7BPositions%7D)
+![equation](http://latex.codecogs.com/gif.latex?Observations%20%3D%20%5Cfrac%7B%5Csum%7B%27.log.%3Cn%3E%27%7D%20&plus;%20Positions%7D%7BPositions%7D)
 
 The log files are then read into a 2D dataframe array i.e. dataframe[position][observation].
 
