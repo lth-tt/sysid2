@@ -31,6 +31,23 @@ def read_data(control_output,task_vel):
 
 #the function reads the step response data from the files and outputs a dataframe
 def batch_read_data(control_output,task_vel):
+
+    #the function removes the negative trend
+    def trend_remove(df_i_s):
+        df_i_s['trend'] = np.sign(df_i_s['x_ist'].rolling(window=5).mean().diff().fillna(0)).map({0:'FLAT',1:'UP',-1:'DOWN'})
+        rev = list(df_i_s.trend.values)[::-1]
+        counter = 0
+
+        for i in range(0,len(rev)):
+            if rev[i] == 'DOWN':
+                counter = counter+1
+            else:
+                break
+        leng = len(df_i_s)
+        if counter > 5: #if the trend is noticable, then the dataframe is updated.
+            df_i_s = df_i_s.head(leng-counter)
+        return df_i_s
+
     try:
         df_soll     = pd.read_csv(control_output, header = 0)
         df_soll.columns = df_soll.columns.str.strip() #removing whitespace from header name
@@ -43,13 +60,14 @@ def batch_read_data(control_output,task_vel):
         #df_ist      = df_ist[~df_ist.index.duplicated(keep = 'first')]
         df_ist_soll = pd.concat([df_soll.x_soll, df_ist.x_ist], axis = 1).fillna(method = 'pad')
         df_ist_soll = df_ist_soll.fillna(0)
+        df_ist_soll = trend_remove(df_ist_soll)
+        df_ist_soll.drop('trend', axis = 1, inplace = True) #removing the column trend from the dataframe
         return df_ist_soll
     except:
         pass
 
 
-
-
+    
     
 #function that strips zeros and multiplies the dataframe to 1
 def strip_multiply(dataframe):
