@@ -2,18 +2,17 @@
 
 import pandas as pd
 import numpy as np
-import scipy.signal as sig
-import math
+import scipy.signal as sig #for running savgol filter
+import math #for finding window size
 from sklearn.metrics import mean_squared_error
-from statsmodels.tsa.arima_model import ARIMA
 import control as con
 
 
 
 
 
-#the function reads the input and output data and returns a dataframe having all the information 
-def read_data(control_output,task_vel):
+#the function reads a single input and output data and returns a dataframe having all the information 
+def read_data(control_output, task_vel):
     df_soll     = pd.read_csv(control_output, header = 0, names = ['time', 'x_soll'])
     df_soll     = df_soll.set_index('time')
     df_soll     = df_soll[~df_soll.index.duplicated(keep = 'first')] 
@@ -30,38 +29,40 @@ def read_data(control_output,task_vel):
 
 
 #the function reads the step response data from the files and outputs a dataframe
-def batch_read_data(control_output,task_vel):
+def batch_read_data(control_output, task_vel):
 
-    #the function removes the negative trend
-    def trend_remove(df_i_s):
+    #the function removes the negative trend which could be a possibility in some step responses
+    def trend_remove(df_i_s):#df_i_s: dataframe_ist_soll
         df_i_s['trend'] = np.sign(df_i_s['x_ist'].rolling(window=5).mean().diff().fillna(0)).map({0:'FLAT',1:'UP',-1:'DOWN'})
+        #A new column named trend is added to the dataframe having either one of 'UP', 'FLAT' and 'DOWN' values
         rev = list(df_i_s.trend.values)[::-1]
+        #The trend values are reversed so as to count the number of 'DOWN' trend at the end of the observation
         counter = 0
 
         for i in range(0,len(rev)):
             if rev[i] == 'DOWN':
-                counter = counter+1
+                counter = counter + 1
             else:
                 break
         leng = len(df_i_s)
         if counter > 5: #if the trend is noticable, then the dataframe is updated.
-            df_i_s = df_i_s.head(leng-counter)
+            df_i_s = df_i_s.head(leng - counter)
         return df_i_s
 
-    try:
+    try: #try except is used to ignore empty data
         df_soll     = pd.read_csv(control_output, header = 0)
         df_soll.columns = df_soll.columns.str.strip() #removing whitespace from header name
-        df_soll.rename(columns={'values[0]': 'x_soll','time':'time_old','local_time':'time'}, inplace=True)
+        df_soll.rename(columns={'values[0]': 'x_soll', 'time':'time_old', 'local_time':'time'}, inplace=True)
+        #local time from the log file is the actual time. 'time' from the log data is not used and thereby is renamed to time_old. 
         df_soll     = df_soll.set_index('time')
         df_ist      = pd.read_csv(task_vel, header = 0)
         df_ist.columns = df_ist.columns.str.strip()
-        df_ist.rename(columns={'values[2]': 'x_ist','time':'time_old','local_time':'time'}, inplace=True)
+        df_ist.rename(columns={'values[2]': 'x_ist', 'time':'time_old', 'local_time':'time'}, inplace=True)
         df_ist      = df_ist.set_index('time')
-        #df_ist      = df_ist[~df_ist.index.duplicated(keep = 'first')]
         df_ist_soll = pd.concat([df_soll.x_soll, df_ist.x_ist], axis = 1).fillna(method = 'pad')
         df_ist_soll = df_ist_soll.fillna(0)
         df_ist_soll = trend_remove(df_ist_soll)
-        df_ist_soll.drop('trend', axis = 1, inplace = True) #removing the column trend from the dataframe
+        df_ist_soll.drop('trend', axis = 1, inplace = True) #removing the extra trend column from the dataframe
         return df_ist_soll
     except:
         pass
@@ -69,52 +70,43 @@ def batch_read_data(control_output,task_vel):
 
     
     
-#function that strips zeros and multiplies the dataframe to 1
+#function that strips unwanted zeros and changes the dataframe response to a standard unit step response
 def strip_multiply(dataframe):
     
     time_array                     = []
-    no_zero_df                     = []
+    no_zero_df                     = [] #dataframe having non zero x_soll values
     input_array                    = []
     output_array                   = []
-    time_of_step                   = []
-    last_zero_df                   = []
-    dataframe_new                  = []
-    data_for_modeling              = []
-    response_start_time            = []
-    x_soll_steady_state            = []
-    multiplication_factor          = []
-    data_with_initial_zero         = []
-    time_series_starting_from_zero = []
+    time_of_step                   = [] #time at which the step occurs
+    last_zero_df                   = [] #dataframe before step change (x_soll value is the last zero)
+    dataframe_new                  = [] #dataframe having positive x_ist
+    data_for_modeling              = [] #consists of modified x_soll, x_ist and time values
+    response_start_time            = [] #time at which the new response starts
+    x_soll_steady_state            = [] #chooses the last x_soll value(time indexed) as the stead_state value
+    multiplication_factor          = [] 
+    #calculates the factor to be multiplied with each of the responses for getting a unit step response
+    data_with_initial_zero         = [] #returns a step response starting from a single zero
+    time_series_starting_from_zero = [] #consists of a new time series data whose time starts from zero
     
     for i in range(0,len(dataframe)):
         dataframe_new.append(dataframe[i][dataframe[i].x_ist > 0])
         no_zero_df.append(dataframe_new[i][dataframe_new[i].x_soll > 0])                      
-        #selects the dataframe that has no zeros in x_soll
         time_of_step.append(no_zero_df[i].index[0]) 
-        #returns the time at which the step occurs
         last_zero_df.append(dataframe_new[i][(dataframe_new[i].x_soll == 0) & \
                                              (dataframe_new[i].index < time_of_step[i])].tail(1)) 
-        #selects the df containing last zero value before the change in step 
+        #tail function selects the last x_soll zero value
 
         response_start_time.append(pd.concat([last_zero_df[i], no_zero_df[i]]).index[0]) 
-        #returns the actual starting time of the dataframe
         data_with_initial_zero.append(pd.concat([last_zero_df[i], no_zero_df[i]])) 
-        #returns a dataframe that starts from a 0 value so that we get an actual'step'
-        time_series_starting_from_zero.append(data_with_initial_zero[i].index-response_start_time[i]) 
-        #returns a new time series data whose time starts from zero
+        time_series_starting_from_zero.append(data_with_initial_zero[i].index - response_start_time[i]) 
         data_for_modeling.append(data_with_initial_zero[i].set_index(time_series_starting_from_zero[i]))
         #changing the index of the dataframe with the new time series
 
         x_soll_steady_state.append(no_zero_df[i].x_soll.head(1)) 
-        #returns the steady state value along with the time index
         multiplication_factor.append(1 / (pd.Series(x_soll_steady_state[i]).values[0]))
-        #calculates the factor to be multiplied with each of the data
         input_array.append((multiplication_factor[i] * data_for_modeling[i].x_soll).tolist())                    
-        #returns the 1D array  after multiplying the input with the factor in order to equalise it with 1 
         output_array.append((multiplication_factor[i] * data_for_modeling[i].x_ist).tolist()) 
-        #returns the 1D array  after multiplying the output with the factor in order to equalise it with 1
         time_array.append(data_for_modeling[i].index.tolist()) 
-        #extracting the time series index into a 1D array
     return input_array, output_array, time_array
 
 
@@ -122,14 +114,14 @@ def strip_multiply(dataframe):
 
 
 #the function accepts an order and the time series to output the aic, mse and fitted values of the series
-def order_ar_P(ar_order,output):
+def order_ar_P(ar_order, output):
     ar_system     = ARIMA(output, order=(ar_order, 0, 0))
     fitted_ar     = ar_system.fit().fittedvalues
-    fitted_ar[0]  = 0
+    fitted_ar[0]  = 0 #assigning the first fitted output value to zero since the initial value always resulted in an abrupt value
     mse_ar        = mean_squared_error(output, fitted_ar)
     output_length = len(output) 
     aic_ar        = (output_length * np.log(mse_ar)) + (2 * ar_order) + (output_length * 1 * (np.log(2 * np.pi) + 1))
-    return aic_ar,mse_ar,fitted_ar
+    return aic_ar, mse_ar, fitted_ar
 
 
 
@@ -138,8 +130,7 @@ def order_ar_P(ar_order,output):
 #function that smoothes the data using a savgol filter
 def smooth(fitted_values, order):
     
-    c = 0 
-    #a counter that returns the number of zeros present in the dataframe
+    c = 0 #a counter that returns the number of zeros present in the dataframe
     
     for i in range(0,len(fitted_values)):
         if fitted_values[i] < 0.02: 
@@ -152,6 +143,7 @@ def smooth(fitted_values, order):
     #smoothing is done after stripping of the zeros
     multiplication_factor = (len(fitted_without_zeros) / 2) % 2 
     #calculates the factor to be multiplied in finding the window length
+    #window length must always be an odd number. 
    
     if multiplication_factor   == 0.0:
         window_length     = math.ceil((len(fitted_without_zeros) / 2) + 1)
