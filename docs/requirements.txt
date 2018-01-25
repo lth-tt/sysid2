@@ -1,0 +1,7 @@
+pandas==0.22.0
+numpy==1.10.1
+scipy
+sklearn
+control
+statistics
+slycot
