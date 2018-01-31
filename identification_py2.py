@@ -115,7 +115,6 @@ def strip_multiply(dataframe):
 
 #function that changes the dataframe response to a standard unit step response
 def unit_response(dataframe):
-    
     time_array                     = []
     input_array                    = []
     output_array                   = []
@@ -129,7 +128,7 @@ def unit_response(dataframe):
         input_array.append((multiplication_factor[i] * dataframe[i].x_soll).tolist())                    
         output_array.append((multiplication_factor[i] * dataframe[i].x_ist).tolist()) 
         time_array.append(dataframe[i].index.tolist()) 
-    return input_array, output_array, time_array
+    return input_array, output_array, time_array, multiplication_factor
     
 
 
