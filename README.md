@@ -17,7 +17,8 @@ The repo deals with the Reduced Order System Identification Of Task-Space Contro
 ### Output files
      model_pt1.png:                    Modeling based on pt1 estimation
      model_pt2.png:                    Modeling based on pt2 estimation
+     Model_Validation/:                Contains plots of model vs data
      Statistical_Output.txt:           Statistical data of all the ideal models in 9 positions         
      State_Space_Parameters.txt:       Text file containing all the model state space parameters
      All_Model_Statistical_Output.txt: Statistical data of all the observations in 9 positions
-
+     
