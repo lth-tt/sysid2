@@ -113,6 +113,29 @@ def strip_multiply(dataframe):
 
 
 
+#function that changes the dataframe response to a standard unit step response
+def unit_response(dataframe):
+    
+    time_array                     = []
+    input_array                    = []
+    output_array                   = []
+    x_soll_steady_state            = [] #chooses the last x_soll value(time indexed) as the stead_state value
+    multiplication_factor          = [] 
+    #calculates the factor to be multiplied with each of the responses for getting a unit step response
+   
+    for i in range(0,len(dataframe)):
+        x_soll_steady_state.append(dataframe[i].x_soll.tail(1)) 
+        multiplication_factor.append(1 / (pd.Series(x_soll_steady_state[i]).values[0]))
+        input_array.append((multiplication_factor[i] * dataframe[i].x_soll).tolist())                    
+        output_array.append((multiplication_factor[i] * dataframe[i].x_ist).tolist()) 
+        time_array.append(dataframe[i].index.tolist()) 
+    return input_array, output_array, time_array
+    
+
+
+
+
+    
 #the function accepts an order and the time series to output the aic, mse and fitted values of the series
 def order_ar_P(ar_order, output):
     ar_system     = ARIMA(output, order=(ar_order, 0, 0))
