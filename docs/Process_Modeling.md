@@ -1,4 +1,4 @@
-# Reduced Order System Identification of batch data using Python 2 
+# Reduced Order System Identification of batch data
 
 Program input : 
 
@@ -10,9 +10,12 @@ Program output:
                 Plot of all general models for each experimental task space point as *.png file
                 Statistical data of general as well as all models as *.txt files and dataframes
                 State space parameters of all general models as *.txt file
- 
+## Process Flow
+### Python 2: 
 ![Program Flow](process_operation.png?raw=true "Title")
 
+### Python 3:
+![Program Flow](process_operation_py3.png?raw=true "Title")
 
 ## Reading of all log data
 The step_log folder containing all the log files must be transferred to the folder where program execution is taking place. The program sorts all the log files in two parts. In the first part, all the '.log' files are taken into account. In the latter part, '.log.\<n>' files are sorted. These two parts are then combined together in a single array consisting of all sorted log files.
@@ -26,6 +29,10 @@ The log files are then read into a 2D dataframe array i.e. dataframe[position][o
 
 ## Plotting of all data
 Using subplots, all the observations under a particular position are plotted in a single image file and is saved under a folder named Overview. The number of generated image files is in accordance with the number of available positions.
+
+
+## Smoothing based on  AR Prediction 
+An AR prediction of the data is carried out as a presmoothing technique. This smoothing operation tends to improve the model by a small extent as it reduces the mean squared error. 
 
 
 ## Savitzky-Golay Smoothing
