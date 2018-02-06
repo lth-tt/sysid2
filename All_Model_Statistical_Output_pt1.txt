@@ -1,0 +1,30 @@
+###########################
+  STATISTICAL INFORMATION  
+###########################
+
+Position 1
+Obs       Mean        Median       Standard Deviation    Variance         Quantile[.25, .5, .75]
+
+Position 2
+Obs       Mean        Median       Standard Deviation    Variance         Quantile[.25, .5, .75]
+
+Position 3
+Obs       Mean        Median       Standard Deviation    Variance         Quantile[.25, .5, .75]
+
+Position 4
+Obs       Mean        Median       Standard Deviation    Variance         Quantile[.25, .5, .75]
+
+Position 5
+Obs       Mean        Median       Standard Deviation    Variance         Quantile[.25, .5, .75]
+
+Position 6
+Obs       Mean        Median       Standard Deviation    Variance         Quantile[.25, .5, .75]
+
+Position 7
+Obs       Mean        Median       Standard Deviation    Variance         Quantile[.25, .5, .75]
+
+Position 8
+Obs       Mean        Median       Standard Deviation    Variance         Quantile[.25, .5, .75]
+
+Position 9
+Obs       Mean        Median       Standard Deviation    Variance         Quantile[.25, .5, .75]
