@@ -15,10 +15,13 @@ The repo deals with the Reduced Order System Identification Of Task-Space Contro
      Process_Modeling_py2.ipynb:       System Identification using python 2. Depends on identification_py2.py.
      Process_Modeling_py3.ipynb:       System Identification using python 3. Depends on identification_py3.py.
 ### Output files
-     model_pt1.png:                    Modeling based on pt1 estimation
-     model_pt2.png:                    Modeling based on pt2 estimation
-     Model_Validation/:                Contains plots of model vs data
-     Statistical_Output.txt:           Statistical data of all the ideal models in 9 positions         
-     State_Space_Parameters.txt:       Text file containing all the model state space parameters
-     All_Model_Statistical_Output.txt: Statistical data of all the observations in 9 positions
-     
+     model_pt1.png:                        Modeling based on pt1 estimation
+     model_pt2.png:                        Modeling based on pt2 estimation
+     Model_Validation/:                    Contains plots of model vs data
+     Statistical_Output_pt1.txt:           Statistical data of all the ideal pt1 models in 9 positions         
+     Statistical_Output_pt2.txt:           Statistical data of all the ideal pt2 models in 9 positions         
+     State_Space_Parameters_pt1.txt:       Text file containing all the pt1 model state space parameters
+     State_Space_Parameters_pt2.txt:       Text file containing all the pt2 model state space parameters
+     All_Model_Statistical_Output_pt2.txt: Statistical data of all the observations in 9 positions using pt2 modeling
+     All_Model_Statistical_Output_pt1.txt: Statistical data of all the observations in 9 positions using pt1 modeling
+ 
