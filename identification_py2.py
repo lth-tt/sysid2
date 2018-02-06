@@ -341,8 +341,18 @@ def ideal_pt1(ss_array, tc_array, d_array):
     ideal_tf_pt1                = con.matlab.tf(ideal_ss, [ideal_tc, 1])
     numerator, denominator      = con.pade(ideal_d, 1)
     ideal_d_tf_pt1              = con.matlab.tf(numerator,denominator)
-    ideal_yout_pt1, ideal_t_pt1 = con.matlab.step(ideal_tf_pt1 * ideal_d_tf_pt1)
-    return ideal_tf_pt1 * ideal_d_tf_pt1, ideal_yout_pt1, ideal_t_pt1
+    transfer_function           = ideal_tf_pt1 * ideal_d_tf_pt1
+    #############################################################################################################################
+    # manual fitting of ideal pt1 model
+    # Based on the assumption that the plot of denominator of the transfer function has only one intercept in x-axis
+    # We have ax ^ 2 + bx + c = 0
+    # Therefore we change b such that b ^ 2 - 4 * a * c = 0
+    # For more fitting, we round down the result
+    transfer_function.den[0][0][1]  = math.floor(math.sqrt(4 * transfer_function.den[0][0][0] * transfer_function.den[0][0][2]))
+    # To obtain the normal result, comment the above line
+    #############################################################################################################################
+    ideal_yout_pt1, ideal_t_pt1 = con.matlab.step(transfer_function)
+    return transfer_function, ideal_yout_pt1, ideal_t_pt1
 
 
 
