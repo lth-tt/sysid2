@@ -25,3 +25,5 @@ The repo deals with the Reduced Order System Identification Of Task-Space Contro
      All_Model_Statistical_Output_pt2.txt: Statistical data of all the observations in 9 positions using pt2 modeling
      All_Model_Statistical_Output_pt1.txt: Statistical data of all the observations in 9 positions using pt1 modeling
  
+
+The Python 2 code is ahead of Python 3. Therefore, it is advised to use Python 2 notebook.
