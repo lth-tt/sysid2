@@ -175,7 +175,7 @@ def smooth(fitted_values, order):
         window_length     = math.ceil((len(fitted_without_zeros) / 2) + (2 * multiplication_factor))
         #returns an odd integer, which is greater than half of the length of fitted data 
     
-    filter_output         = sig.savgol_filter(fitted_without_zeros, window_length, order) 
+    filter_output         = sig.savgol_filter(fitted_without_zeros, int(window_length), order) 
     #the filter preserves the distributional features like relative maxima, minima and width of the time series
     smoothed_data         = np.append(fitted_values[0:c], filter_output)
     return smoothed_data 
