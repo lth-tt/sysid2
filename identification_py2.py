@@ -261,7 +261,7 @@ def pt1(smooth, time):
     #    transfer_function(s) =       ------------------------------------        #
     #                                       (time_constant * s + 1 )              #
     ###############################################################################
-    return tf_pt1 * delay_tf_pt1, yout_pt1, t_pt1, delay, time_constant, steady_state
+    return tf_pt1 * delay_tf_pt1, yout_pt1, t_pt1, delay, time_constant, steady_state, tf_pt1
 
 
 
@@ -327,7 +327,7 @@ def pt2(smooth, time):
     #    transfer_function(s) =  ----------------------------------------------------------------------    #
     #                            ((time_constant ^ 2) * (s ^ 2)) + (2 * zeta * time_constant * s) + 1 )    #
     ########################################################################################################
-    return tf_pt2 * delay_tf_pt2, yout_pt2, t_pt2, delay, time_constant, steady_state, zeta
+    return tf_pt2 * delay_tf_pt2, yout_pt2, t_pt2, delay, time_constant, steady_state, zeta, tf_pt2
 
 
 
@@ -352,7 +352,7 @@ def ideal_pt1(ss_array, tc_array, d_array):
     # To obtain the normal result, comment the above line
     #############################################################################################################################
     ideal_yout_pt1, ideal_t_pt1 = con.matlab.step(transfer_function)
-    return transfer_function, ideal_yout_pt1, ideal_t_pt1
+    return transfer_function, ideal_yout_pt1, ideal_t_pt1, ideal_tf_pt1, ideal_d
 
 
 
@@ -368,7 +368,7 @@ def ideal_pt2(ss_array, tc_array, d_array, z_array):
     numerator, denominator      = con.pade(ideal_d, 1)
     ideal_d_tf_pt2              = con.matlab.tf(numerator,denominator)
     ideal_yout_pt2, ideal_t_pt2 = con.matlab.step(ideal_tf_pt2 * ideal_d_tf_pt2)
-    return ideal_tf_pt2 * ideal_d_tf_pt2, ideal_yout_pt2, ideal_t_pt2
+    return ideal_tf_pt2 * ideal_d_tf_pt2, ideal_yout_pt2, ideal_t_pt2, ideal_tf_pt2, ideal_d
 
 
 
